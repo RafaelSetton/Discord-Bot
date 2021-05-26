@@ -1,28 +1,26 @@
-import os
-import discord
+from discord import Intents
 from discord.ext import commands
+from discord.errors import HTTPException
 from app.flask_app import keep_alive
 from src.helpers import send_help
-from discord.errors import HTTPException
+from os import environ
 
 # Load Env Variables
-TOKEN = os.environ['DISCORD_TOKEN']
-print("READY")
+TOKEN = environ['DISCORD_TOKEN']
 
 # Load Bot and Utils
-intents = discord.Intents.all()
-client = commands.Bot(command_prefix='rr', intents=intents)
+client = commands.Bot(command_prefix='rr', intents=Intents.all())
 
 client.load_extension('src.pokemon')
 client.load_extension('src.agenda')
 client.load_extension('src.setup_vote')
-
+client.load_extension('src.nick')
 
 
 @client.event
 async def on_ready():
     print(f'{client.user} has connected to Discord!')
-    print(f'Connected to the following guilds: {client.guilds}')
+    print(f'Connected to the following guilds: {list(map(lambda g: g.name, client.guilds))}')
 
 
 @client.event
@@ -37,8 +35,7 @@ async def on_error(event, *args):
 @client.event
 async def on_command_error(ctx: commands.Context, error):
     if isinstance(error, commands.errors.CheckFailure):
-        if ctx.command.name == 'del':
-            await ctx.send('Você não tem permissão para fazer isso.')
+        await ctx.send('Você não tem permissão para fazer isso.')
     elif isinstance(error, commands.errors.MissingRequiredArgument):
         await send_help(ctx.command)
     else:
@@ -53,7 +50,7 @@ async def on_member_join(member):
             f'Hi {member.name}, welcome to my Discord server!'
         )
     except HTTPException as err:
-        with open('err.log', 'a') as log:
+        with open('logs/err.txt', 'a') as log:
             log.write(f'Error in member join, member: {member}\n')
             log.write(str(err))
 

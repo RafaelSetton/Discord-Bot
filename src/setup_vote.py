@@ -20,7 +20,5 @@ class SetupVote(commands.Cog):
             params = params[10:]
 
 
-
-
 def setup(client):
     client.add_cog(SetupVote(client))

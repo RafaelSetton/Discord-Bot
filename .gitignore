@@ -2,3 +2,5 @@
 poetry.lock
 pyproject.toml
 __pycache__/
+logs/
+src/__pycache__/
