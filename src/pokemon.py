@@ -4,10 +4,10 @@ from json import JSONDecoder
 from requests import get
 from discord import Embed
 
-Poke = namedtuple("Poke", "name id sprites weight height types is_default")
+Model = namedtuple("Poke", "name id sprites weight height types is_default")
 
 
-class Pokemon:
+class Poke:
     def __new__(cls, **kwargs):
         pops = []
         for k, v in kwargs.items():
@@ -15,17 +15,17 @@ class Pokemon:
                 pops.append(k)
         for p in pops:
             kwargs.pop(p)
-        return Poke(**kwargs)
+        return Model(**kwargs)
 
 
-class PokeCommands(commands.Cog):
+class Pokemon(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    @commands.command(name='pokemon')
-    async def pokemon(self, ctx: commands.Context, name):
+    @commands.command(name='pokedex', help="Traz informações sobre um certo pokemon")
+    async def pokedex(self, ctx: commands.Context, name):
         url = "https://pokeapi.co/api/v2/pokemon/"
-        poke = Pokemon(**JSONDecoder().decode(get(url+name).text))
+        poke = Poke(**JSONDecoder().decode(get(url+name).text))
         embed = Embed()
         embed.set_thumbnail(url=poke.sprites['front_default'])
         embed.set_footer(text="Por: Rafael Setton")
@@ -41,4 +41,4 @@ class PokeCommands(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(PokeCommands(client))
+    client.add_cog(Pokemon(client))

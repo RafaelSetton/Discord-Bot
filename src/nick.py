@@ -14,7 +14,7 @@ class ChangeNick(commands.Cog):
         prev = person.nick
         try:
             await person.edit(nick=nick)
-            log(ctx.guild, 'nick', f'{ctx.author.name}#{ctx.author.discriminator} mudou o nick de {person.name}#m{person.discriminator}\n{prev} -> {nick}')
+            log(ctx.guild, 'nick', f'{ctx.author.name}#{ctx.author.discriminator} mudou o nick de {person.name}#{person.discriminator}\n{prev} -> {nick}')
         except CommandInvokeError:
             await ctx.send(f"O cargo de {person.mention()} é mais alto que o meu.")
 

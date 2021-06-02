@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+<body>
+<h1>Coding Bot Dashboard!</h1>
+
+{{info}}
+
+<ul>
+{% for guild in matching %}
+  <li>{{ guild.name }}</li>
+{% endfor %}
+</ul>
+
+</body>
+
+{% endblock %}

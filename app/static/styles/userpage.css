@@ -1,0 +1,33 @@
+h1 {
+    text-align: center;
+    margin: 25px;
+}
+
+#footer-image {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    height: 75px;
+    border: 1px solid grey;
+    border-radius: 50%;
+}
+
+li:hover {
+    background: #ddd;
+}
+
+.list-group-item a {
+    width: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 25px;
+
+    text-decoration: unset;
+}
+
+.list-group-item a img {
+    border-radius: 50%;
+    border: 3px double darkgrey;
+    height: 100px;
+}

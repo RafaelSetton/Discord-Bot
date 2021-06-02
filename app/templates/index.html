@@ -1,26 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %} 
+
+{% block title %}Home{% endblock %} 
+
+{% block body %}
 
 <head>
-	<meta charset="UTF-8">
-	<link rel="stylesheet" href="{{ url_for('static', filename= 'styles/index.css') }}">
-
-	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}">
-	<title>BOTimito</title>
+<link rel="stylesheet" href="{{ url_for('static', filename= 'styles/index.css') }}" />
 </head>
 
 <body>
-	<h1>Bem vindo(a)!</h1>
+	<h1 id="title">Bem vindo(a)!</h1>
 
-	<div id="description">
+	<div id="description" class="container">
 		<h2>Funcionalidades: </h2>
 		<ul>
 			<li>Agenda</li>
 			<li>Organizar votações pelo discord</li>
 			<li>Pokedéx</li>
-            <li>Trocar nicknames de cargos superiores (somente para admins)</li>
+			<li>Trocar nicknames de cargos superiores (somente para admins)</li>
 		</ul>
 	</div>
+	<div class="text-center">
+		<a href="/login">
+			<button type="button" id="login-button" class="btn btn-outline-secondary">
+               <img id="disc_logo" src="{{ url_for('static', filename= 'images/discord_logo.png') }}" alt="discord"/>
+                Login
+            </button>
+        </a>
+    </div>
 </body>
-
-</html>
+{% endblock %}

@@ -2,5 +2,8 @@
 poetry.lock
 pyproject.toml
 __pycache__/
-logs/
+database/
 src/__pycache__/
+app/__pycache__/
+runtest.bash
+.pytest_cache/

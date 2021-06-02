@@ -1,0 +1,26 @@
+{% extends 'base.html' %} {% block title %}Login com Discord{% endblock %} {% block body %}
+
+<head>
+	<link rel="stylesheet" href="{{ url_for('static', filename= 'styles/userpage.css') }}">
+</head>
+
+<body>
+	<h1>Bem vindo(a) {{user.name}}!</h1>
+    
+    <div class="card" style="width: calc(100% - 20px); margin: 10px">
+        <ul class="list-group list-group-flush">
+            {% for guild in matching %}
+            <li class="list-group-item">
+                <a href="{{ url_for('dashboard', id=guild.id) }}">
+                    <img src="{{guild.icon_url}}" alt="icon">
+                    {{guild.name}}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <img id="footer-image" src="{{user.avatar_url}}" alt="avatar">
+</body>
+
+{% endblock %}

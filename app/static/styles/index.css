@@ -1,12 +1,23 @@
-h1 {
+#title {
     color: black;
     text-align: center;
     padding: 10px;
+    font-weight: bold;
 }
 
 #description {
     margin: 10px 20px;
     padding: 10px;
     background: #eee;
-    border: 10px transparent;
+    border-style: none;
+    border-radius: 10px;
+}
+
+#disc_logo {
+    height: 15px;
+    margin-right: 3px;
+}
+
+#login-button {
+    align-content: space-between;
 }

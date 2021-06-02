@@ -1,26 +1,16 @@
 from discord import Intents
-from discord.ext import commands
 from discord.errors import HTTPException
-from app.flask_app import keep_alive
-from src.helpers import send_help
+from app.app import app
+from src.helpers import send_help, setup_guild
 from os import environ
+from src.bot import MyBot
+from discord.ext import commands
 
 # Load Env Variables
 TOKEN = environ['DISCORD_TOKEN']
 
 # Load Bot and Utils
-client = commands.Bot(command_prefix='rr', intents=Intents.all())
-
-client.load_extension('src.pokemon')
-client.load_extension('src.agenda')
-client.load_extension('src.setup_vote')
-client.load_extension('src.nick')
-
-
-@client.event
-async def on_ready():
-    print(f'{client.user} has connected to Discord!')
-    print(f'Connected to the following guilds: {list(map(lambda g: g.name, client.guilds))}')
+client = MyBot(command_prefix='rr', intents=Intents.all())
 
 
 @client.event
@@ -33,11 +23,17 @@ async def on_error(event, *args):
 
 
 @client.event
+async def on_message(message):
+    ctx = await client.get_context(message)
+    await client.invoke(ctx)
+
+
+@client.event
 async def on_command_error(ctx: commands.Context, error):
     if isinstance(error, commands.errors.CheckFailure):
         await ctx.send('Você não tem permissão para fazer isso.')
     elif isinstance(error, commands.errors.MissingRequiredArgument):
-        await send_help(ctx.command)
+        await send_help(ctx.channel, ctx.command)
     else:
         raise error
 
@@ -47,14 +43,31 @@ async def on_member_join(member):
     try:
         await member.create_dm()
         await member.dm_channel.send(
-            f'Hi {member.name}, welcome to my Discord server!'
-        )
+            f'Hi {member.name}, welcome to my Discord server!')
     except HTTPException as err:
-        with open('logs/err.txt', 'a') as log:
+        with open('database/err.txt', 'a') as log:
             log.write(f'Error in member join, member: {member}\n')
             log.write(str(err))
 
 
+@client.event
+async def on_guild_join(guild):
+    setup_guild(guild)
+
+@client.ipc.route()
+async def get_guild_count(data):
+	return len(client.guilds)
+
+@client.ipc.route()
+async def get_guild_ids(data):
+	return list(map(lambda g: g.id, client.guilds))
+
+
+@client.ipc.route()
+async def get_guild_info(data):
+    data = await client.fetch_guild(data.guild_id)
+    return {"name": data.name, "id": data.id, "icon_url": str(data.icon_url)}
+
 if __name__ == '__main__':
-    keep_alive()
+    client.loop.create_task(app.run_task(host="0.0.0.0", debug=False))
     client.run(TOKEN)

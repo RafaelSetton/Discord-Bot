@@ -1,10 +1,11 @@
 from discord.ext import commands
 from src.helpers import send_help
-from os import listdir
 from datetime import date as realdate, timedelta
 from pickle import load, dump
+from json import loads, dumps, load as jload, dump as jdump
 from prettytable import PrettyTable
 from discord.utils import get
+from discord import Guild
 
 class Event:
     def __init__(self, _id: int, name: str, date: str, _type: str,
@@ -30,29 +31,25 @@ class Event:
         return '```' + table.get_string() + '```'
 
 
-class Agenda:
-    def __init__(self):
-        if 'id.pickle' not in listdir('./database'):
-            self.id_counter = dict()
-            dump(self.id_counter, open('./database/id.pickle', 'wb'))
-        else:
-            self.id_counter = load(open('./database/id.pickle', 'rb'))
+class AgendaModel:
+    @staticmethod
+    def agenda(guild):
+        return load(open(f"database/{guild}/agenda.pickle", 'rb'))
 
-        self.__file_name = './database/agenda.pickle'
-        if 'agenda.pickle' not in listdir('./database'):
-            self.__agenda = dict()
-            with open(self.__file_name, 'xb') as file:
-                dump(self.__agenda, file)
-        else:
-            self.__agenda = load(open(self.__file_name, 'rb'))
+    @staticmethod
+    def id(guild):
+        return loads(jload(open(f"database/{guild}/config.json")))["id"]
 
-    def __where(self, guild, **pairs):
-        for evt in self.__agenda[guild]:
-            for name, value in pairs.items():
-                if getattr(evt, name) != value:
-                    break
-            else:
-                yield evt
+    @staticmethod
+    def save(guild, agenda=None, _id=None):
+        if agenda is not None:
+            dump(agenda, open(f"database/{guild}/agenda.pickle", 'wb'))
+        if _id is not None:
+            with open(f"database/{guild}/config.json", 'r+') as file:
+                obj = loads(jload(file))
+                obj['id'] = _id
+                file.seek(0)
+                jdump(dumps(obj), file)
 
     @staticmethod
     def __pretty(lista):
@@ -62,153 +59,135 @@ class Agenda:
         for evt in lista:
             _id = evt.id
             name = evt.name
-            date = evt.date
-            _type = evt.type
+            data = evt.date
+            tipo = evt.tipo
             subj = evt.subject
-            table.add_row([_id, name, date, _type, subj])
-        return '```' + table.get_string() + '```'   
+            table.add_row([_id, name, data, tipo, subj])
+        return '```\n' + table.get_string() + '```'   
 
-    def __deadline(self, guild, dl: realdate):
-        for evt in self.__agenda[guild]:
+    @classmethod
+    def __where(cls, guild, **pairs):
+        for evt in cls.agenda(guild):
+            for name, value in pairs.items():
+                if getattr(evt, name) != value:
+                    break
+            else:
+                yield evt
+
+    @classmethod
+    def __deadline(cls, guild, dl: realdate):
+        for evt in cls.agenda(guild):
             if evt.date <= dl:
                 yield evt
 
-    def save(self):
-        dump(self.__agenda, open(self.__file_name, 'wb'))
-        dump(self.id_counter, open('./database/id.pickle', 'wb'))
+    @classmethod
+    def until(cls, guild, days):
+        return cls.__pretty(
+            cls.__deadline(guild, realdate.today() + timedelta(days=days)))
 
-    def add(self, guild: str, name: str, date: str, _type: str, subject: str,
-            **others):
+    @classmethod
+    def find(cls, guild, pairs):
         try:
-            self.__agenda[guild]
-        except KeyError:
-            self.__agenda[guild] = []
-            self.id_counter[guild] = 0
-        evt = Event(self.id_counter[guild], name, date, _type, subject,
-                    **others)
-        self.__agenda[guild].append(evt)
-        self.id_counter[guild] += 1
-        self.save()
-
-    def until(self, guild, days):
-        return self.__pretty(
-            self.__deadline(guild, realdate.today() + timedelta(days=days)))
-
-    def find(self, guild, pairs):
-        try:
-            return self.__pretty(self.__where(guild, **pairs))
+            return cls.__pretty(cls.__where(guild, **pairs))
         except AttributeError:
             return "Ops! Esse identificador não existe"
 
-    def week(self, guild: str):
-        return self.until(guild, 7)
+    @classmethod
+    def week(cls, guild: str):
+        return cls.until(guild, 7)
 
-    def delete(self, guild: str, index: int) -> Event:
-        evt = get(self.__agenda[guild], id=index)
-        self.__agenda[guild].remove(evt)
-        self.save()
+    @classmethod
+    def all(cls, guild: str):
+        return cls.__pretty(cls.agenda(guild))
+
+    @classmethod
+    def get(cls, guild: str, index):
+        return get(cls.agenda(guild), id=index)
+
+    @classmethod
+    def add(cls, guild: str, name: str, date: str, _type: str, subject: str, **others):
+        _id = cls.id(guild)
+        evt = Event(_id, name, date, _type, subject,
+                    **others)
+        new = cls.agenda(guild) + [evt]
+        cls.save(guild, new, _id + 1)
         return evt
 
-    def all(self, guild: str):
-        return self.__pretty(self.__agenda[guild])
+    @classmethod
+    def delete(cls, guild: str, index: int) -> Event:
+        agenda = cls.agenda(guild)
+        evt = get(agenda, id=index)
+        agenda.remove(evt)
+        cls.save(guild, agenda)
+        return evt
 
-    def get(self, guild: str, index):
-        return get(self.__agenda[guild], id=index)
 
-
-class AgendaCommands(commands.Cog):
+class Agenda(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.agenda_handler = Agenda()
 
-    @commands.command(name='agenda')
-    async def agenda(self, ctx: commands.Context, *args, **kwargs):
-        """
-        rragenda
-        add  : Adiciona um evento
-        show : Mostra os eventos
-        del  : Deleta um evento 
-        """
-        args = list(args)
-        for i in range(len(args)-1, -1, -1):
-            try:
-                k, v = args[i].split('=')
-            except ValueError:
-                pass
-            else:
-                kwargs[k] = v
-                args.pop(i)
-        try:
-            param = args[0]
-        except IndexError:
-            raise commands.errors.MissingRequiredArgument(self.agenda)
-        if param == "show":
-            await self.show(ctx, *args[1:], **kwargs)
-        elif param == "add":
-            try:
-                await self.add(ctx, *args[1:], **kwargs)
-            except TypeError:
-                await send_help(ctx.channel, self.add)
-        elif param == "del":
-            await self.delete(ctx, args[1])
-        else:
-            response = "Sintaxe Invalida"
-            await ctx.send(response)
+    @staticmethod
+    def get_identifier(guild: Guild):
+        return guild.name + '#' + str(guild.id)
 
-
+    @commands.command(name='agadd', help="Adiciona um evento à agenda")
+    @commands.has_permissions(manage_messages=True)
     async def add(self, ctx: commands.Context, name, date, _type, subject, **other):
         """
         add [nome] [data(DD/MM/YYYY)] [tipo do evento] [materia] [?outros (chave=valor)]
             Cria um evento com as opções definidas.
         """
-        self.agenda_handler.add(ctx.guild.name, name, date, _type, subject, **other)
+        evt = AgendaModel.add(self.get_identifier(ctx.guild), name, date, _type, subject, **other)
 
-        response = f"'{name}' foi adicionado à agenda!"
+        response = f"'{name}' foi adicionado à agenda! (id=`{evt.id}`)"
         await ctx.send(response)
 
-
+    @commands.command(name='agshow', help="Lista os eventos. Para mais informações: rrhelp agshow \n\n"
+        "all           : Todos os eventos\n"
+        "week          : Os eventos nos próximos 7 dias\n"
+        "[key]=[value]: Filtrar eventos (Use quantos filtros quiser)\n"
+        "time [d]   : Mostra os eventos nos próximos [d] dias\n"
+        "[id]          : Mostra detalhes do evento com o id indicado")
     async def show(self, ctx: commands.Context, *params, **kwargs):
-        """
-        show
-        all           : Todos os eventos
-        week          : Os eventos nos próximos 7 dias
-        [type]=[value]: Filtrar eventos (Use quantos filtros quiser)
-        time [days]   : Mostra os eventos nos próximos [*days*] dias
-        [id]          : Mostra detalhes do evento com o id indicado
-        """
+        try:
+            exec(f"kwargs.update({','.join(p for p in params if '=' in p)})")
+        except NameError:
+            await ctx.send("Valores devem estar entre aspas simples (')")
+            return
+        params = list(filter(lambda p: '=' not in p, params))
         try:
             param = params[0]
         except IndexError:
             if not kwargs:
                 await send_help(ctx.channel, self.show)
+                return
             else:
-                response = self.agenda_handler.find(ctx.guild.name, kwargs)
+                response = AgendaModel.find(self.get_identifier(ctx.guild), kwargs)
         else:
             if param == "week":
-                response = self.agenda_handler.week(ctx.guild.name)
+                response = AgendaModel.week(self.get_identifier(ctx.guild))
             elif param == "all":
-                response = self.agenda_handler.all(ctx.guild.name)
+                response = AgendaModel.all(self.get_identifier(ctx.guild))
             elif param == "time":
-                response = self.agenda_handler.until(ctx.guild.name, int(params[1]))
+                response = AgendaModel.until(self.get_identifier(ctx.guild), int(params[1]))
             elif param.isdigit():
-                response = self.agenda_handler.get(ctx.guild.name, int(param))
+                response = AgendaModel.get(self.get_identifier(ctx.guild), int(param))
             else:
                 response = "Sintaxe Invalida"
+                print(params, kwargs)
         finally:
             await ctx.send(response)
 
-
+    @commands.command(name='agdel', help="Deleta o evento com o id selecionado")
+    @commands.has_permissions(manage_messages=True)
     async def delete(self, ctx: commands.Context, _id):
-        if ctx.author.permissions_in(ctx.channel).manage_messages:
-            try:
-                deletado = self.agenda_handler.delete(ctx.guild.name, int(_id))
-            except ValueError:
-                await ctx.send(f"O evento `{_id}` não foi encontrado")
-            else:
-                await ctx.send(deletado.name + ' foi deletado.')
+        try:
+            deletado = AgendaModel.delete(self.get_identifier(ctx.guild), int(_id))
+        except ValueError:
+            await ctx.send(f"O evento `{_id}` não foi encontrado")
         else:
-            raise commands.errors.MissingPermissions(['manage_messages'])
+            await ctx.send(deletado.name + ' foi deletado.')
 
 
 def setup(client):
-    client.add_cog(AgendaCommands(client))
+    client.add_cog(Agenda(client))
