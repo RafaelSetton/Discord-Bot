@@ -174,7 +174,6 @@ class Agenda(commands.Cog):
                 response = AgendaModel.get(self.get_identifier(ctx.guild), int(param))
             else:
                 response = "Sintaxe Invalida"
-                print(params, kwargs)
         finally:
             await ctx.send(response)
 

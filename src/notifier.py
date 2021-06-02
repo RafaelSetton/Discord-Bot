@@ -37,6 +37,7 @@ class Notifier(commands.Cog):
 
         return (future_exec - now).total_seconds()
 
+    """
     @tasks.loop(hours=24)
     async def agenda_notifier(self):
         #sleep(self.seconds_until(12, 0)) 
@@ -51,6 +52,7 @@ class Notifier(commands.Cog):
     async def before_agenda_notifier(self):
         print('waiting...')
         await self.client.wait_until_ready()
+    """
 
 
 def setup(client):
