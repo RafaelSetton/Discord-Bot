@@ -1,6 +1,7 @@
 from discord.ext import commands, ipc
 from src.helpers import setup_guild, send_help
 from discord.errors import HTTPException
+from datetime import datetime
 
 class MyBot(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -37,12 +38,15 @@ class MyBot(commands.Bot):
         ctx = await self.get_context(message)
         await self.invoke(ctx)
 
-    async def on_command_error(self, ctx: commands.Context, error):
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.errors.CheckFailure):
             await ctx.send('Você não tem permissão para fazer isso.')
         elif isinstance(error, commands.errors.MissingRequiredArgument):
             await send_help(ctx.channel, ctx.command)
         else:
+            now = datetime.now()
+            with open('err.log', 'a+') as log:
+                log.write(f"({now.strftime('%Y/%m/%d - %H:%M:%S')}) em {ctx.guild.name}")
             raise error
 
     async def on_member_join(self, member):
