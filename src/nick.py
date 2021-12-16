@@ -3,6 +3,7 @@ from discord import Member
 from discord.ext.commands.errors import CommandInvokeError
 from src.helpers import log
 
+
 class ChangeNick(commands.Cog):
     def __init__(self, client):
         self.client = client
@@ -14,7 +15,8 @@ class ChangeNick(commands.Cog):
         prev = person.nick
         try:
             await person.edit(nick=nick)
-            log(ctx.guild, 'nick', f'{ctx.author.name}#{ctx.author.discriminator} mudou o nick de {person.name}#{person.discriminator}\n{prev} -> {nick}')
+            log(ctx.guild, 'nick', f'{ctx.author.name}#{ctx.author.discriminator} mudou o nick de '
+                                   f'{person.name}#{person.discriminator}\n{prev} -> {nick}')
         except CommandInvokeError:
             await ctx.send(f"O cargo de {person.mention()} é mais alto que o meu.")
 

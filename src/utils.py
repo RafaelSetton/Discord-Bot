@@ -17,7 +17,8 @@ class Utils(commands.Cog):
         embed = Embed()
         
         embed.color = Color.from_rgb(0, 255, 100)
-        embed.set_footer(text="Rafael Setton", icon_url="https://cdn.discordapp.com/avatars/415999616157220864/1e2cccb14d5fb03a554172c9c75e5535.webp?size=1024")
+        embed.set_footer(text="Rafael Setton", icon_url="https://cdn.discordapp.com/avatars/415999616157220864/"
+                                                        "1e2cccb14d5fb03a554172c9c75e5535.webp?size=1024")
 
         embed.title = "Dashboard"
         embed.url = "https://mybot.rafaelsetton.repl.co"

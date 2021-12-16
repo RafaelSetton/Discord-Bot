@@ -16,7 +16,6 @@ class Poke:
     is_default: bool
     
 
-
 class Pokemon(commands.Cog):
     URL = "https://pokeapi.co/api/v2/pokemon/"
 
@@ -42,7 +41,7 @@ class Pokemon(commands.Cog):
         try:
             field_names = set(f.name for f in fields(Poke))
             info = loads(get(self.URL+name).text)
-            poke = Poke(**{k:v for k,v in info.items() if k in field_names})
+            poke = Poke(**{k: v for k, v in info.items() if k in field_names})
         except JSONDecodeError:
             await ctx.send(f"'{name}' não é um pokemon!")
         else:

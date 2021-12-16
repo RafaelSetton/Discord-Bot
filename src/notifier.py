@@ -4,6 +4,7 @@ from src.agenda import AgendaModel, Agenda
 from datetime import datetime, time, timedelta
 from json import dumps, dump, loads, load
 
+
 class Notifier(commands.Cog):
     empty = """```+----+------+------+------+------------+
 | ID | Nome | Data | Tipo | Disciplina |
@@ -12,10 +13,11 @@ class Notifier(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        #self.agenda_notifier.start()
+        # self.agenda_notifier.start()
 
     def cog_unload(self):
-        self.agenda_notifier.cancel()
+        # self.agenda_notifier.cancel()
+        pass
 
     @commands.command(name="notify_here")
     @commands.has_permissions(administrator=True)

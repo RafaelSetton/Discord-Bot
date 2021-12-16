@@ -7,12 +7,13 @@ client = MyBot(command_prefix='rr', intents=Intents.all())
 
 
 @client.ipc.route()
-async def get_guild_count(data):
-	return len(client.guilds)
+async def get_guild_count(_):
+    return len(client.guilds)
+
 
 @client.ipc.route()
-async def get_guild_ids(data):
-	return list(map(lambda g: g.id, client.guilds))
+async def get_guild_ids(_):
+    return list(map(lambda g: g.id, client.guilds))
 
 
 @client.ipc.route()
@@ -22,5 +23,5 @@ async def get_guild_info(data):
 
 
 if __name__ == '__main__':
-    client.loop.create_task(app.run_task(host="0.0.0.0", debug=False))
+    client.loop.create_task(app.run_task(host="localhost", debug=False))
     client.run(environ['DISCORD_TOKEN'])

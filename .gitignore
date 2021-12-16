@@ -1,10 +1,6 @@
 .env
-poetry.lock
-pyproject.toml
-__pycache__/
 database/
-src/__pycache__/
-app/__pycache__/
 runtest.bash
-.pytest_cache/
 err.log
+.idea/
+venv/

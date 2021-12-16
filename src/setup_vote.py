@@ -9,7 +9,8 @@ class SetupVote(commands.Cog):
     @commands.command(name='setup_vote')
     async def setup_vote(self, ctx: commands.Context, *params):
         """Organiza uma votação com os itens selecionados, separados por espaços"""
-        emojis = ["0\ufe0f\u20e3", "1\ufe0f\u20e3", "2\ufe0f\u20e3", "3\ufe0f\u20e3", "4\ufe0f\u20e3", "5\ufe0f\u20e3", "6\ufe0f\u20e3", "7\ufe0f\u20e3", "8\ufe0f\u20e3",    "9\ufe0f\u20e3"]
+        emojis = ["0\ufe0f\u20e3", "1\ufe0f\u20e3", "2\ufe0f\u20e3", "3\ufe0f\u20e3", "4\ufe0f\u20e3",
+                  "5\ufe0f\u20e3", "6\ufe0f\u20e3", "7\ufe0f\u20e3", "8\ufe0f\u20e3", "9\ufe0f\u20e3"]
         for _ in range(ceil(len(params) / 10)):
             indexes = range(min(10, len(params)))
             response = '\n'.join([f"{i}: {params[i]}" for i in indexes])

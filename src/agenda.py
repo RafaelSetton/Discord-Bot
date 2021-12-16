@@ -7,6 +7,7 @@ from prettytable import PrettyTable
 from discord.utils import get
 from discord import Guild
 
+
 class Event:
     def __init__(self, _id: int, name: str, date: str, _type: str,
                  subject: str, **others):
@@ -63,7 +64,7 @@ class AgendaModel:
             tipo = evt.tipo
             subj = evt.subject
             table.add_row([_id, name, data, tipo, subj])
-        return '```\n' + table.get_string() + '```'   
+        return '```\n' + table.get_string() + '```'
 
     @classmethod
     def __where(cls, guild, **pairs):
@@ -143,11 +144,11 @@ class Agenda(commands.Cog):
         await ctx.send(response)
 
     @commands.command(name='agshow', help="Lista os eventos. Para mais informações: rrhelp agshow \n\n"
-        "all           : Todos os eventos\n"
-        "week          : Os eventos nos próximos 7 dias\n"
-        "[key]=[value]: Filtrar eventos (Use quantos filtros quiser)\n"
-        "time [d]   : Mostra os eventos nos próximos [d] dias\n"
-        "[id]          : Mostra detalhes do evento com o id indicado")
+                                          "all           : Todos os eventos\n"
+                                          "week          : Os eventos nos próximos 7 dias\n"
+                                          "[key]=[value]: Filtrar eventos (Use quantos filtros quiser)\n"
+                                          "time [d]   : Mostra os eventos nos próximos [d] dias\n"
+                                          "[id]          : Mostra detalhes do evento com o id indicado")
     async def show(self, ctx: commands.Context, *params, **kwargs):
         try:
             exec(f"kwargs.update({','.join(p for p in params if '=' in p)})")
@@ -155,6 +156,7 @@ class Agenda(commands.Cog):
             await ctx.send("Valores devem estar entre aspas simples (')")
             return
         params = list(filter(lambda p: '=' not in p, params))
+        response = ""
         try:
             param = params[0]
         except IndexError:

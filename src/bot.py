@@ -3,6 +3,7 @@ from src.helpers import setup_guild, send_help
 from discord.errors import HTTPException
 from datetime import datetime
 
+
 class MyBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -49,7 +50,8 @@ class MyBot(commands.Bot):
                 log.write(f"({now.strftime('%Y/%m/%d - %H:%M:%S')}) em {ctx.guild.name}")
             raise error
 
-    async def on_member_join(self, member):
+    @staticmethod
+    async def on_member_join(member):
         try:
             await member.create_dm()
             await member.dm_channel.send(
@@ -59,12 +61,14 @@ class MyBot(commands.Bot):
                 log.write(f'Error in member join, member: {member}\n')
                 log.write(str(err))
 
-    async def on_guild_join(self, guild):
+    @staticmethod
+    async def on_guild_join(guild):
         setup_guild(guild)
 
-    async def on_ipc_ready(self):
+    @staticmethod
+    async def on_ipc_ready():
         print(f'Servidor IPC pronto!') 
 
-    async def on_ipc_error(self, endpoint, error):
+    @staticmethod
+    async def on_ipc_error(endpoint, error):
         print(endpoint, 'raised', error)
-

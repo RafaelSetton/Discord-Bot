@@ -8,12 +8,12 @@ async def send_help(channel: TextChannel, func):
     await channel.send('``` ' + func.__doc__.strip() + '```')
 
 
-def log(guild: Guild, command: str, log: str):
+def log(guild: Guild, command: str, log_text: str):
     chdir('database')
     direc = guild.name + '#' + str(guild.id)
 
     with open(path.join(direc, f'{command}.txt'), 'a+') as file:
-        file.write(log + '\n\n')
+        file.write(log_text + '\n\n')
     chdir('..')
 
 
