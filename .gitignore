@@ -1,5 +1,4 @@
 .env
-database/
 runtest.bash
 err.log
 .idea/
