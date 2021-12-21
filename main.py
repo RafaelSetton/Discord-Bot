@@ -23,5 +23,5 @@ async def get_guild_info(data):
 
 
 if __name__ == '__main__':
-    client.loop.create_task(app.run_task(host="localhost", debug=False))
+    # client.loop.create_task(app.run_task(host="localhost", debug=False))
     client.run(environ['DISCORD_TOKEN'])
