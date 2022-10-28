@@ -7,12 +7,12 @@
 <body>
 	<h1>Bem vindo(a) {{user.name}}!</h1>
     
-    <div class="card" style="width: calc(100% - 20px); margin: 10px">
+    <div class="card">
         <ul class="list-group list-group-flush">
             {% for guild in matching %}
             <li class="list-group-item">
                 <a href="{{ url_for('dashboard', _id=guild.id) }}">
-                    <img src="{{guild.icon_url}}" alt="icon">
+                    <img src="https://cdn.discordapp.com/icons/{{guild.id}}/{{guild.icon}}.webp?size=1024" alt="icon">
                     {{guild.name}}
                 </a>
             </li>
@@ -20,7 +20,7 @@
         </ul>
     </div>
 
-    <img id="footer-image" src="{{user.avatar_url}}" alt="avatar">
+    <img id="footer-image" src="https://cdn.discordapp.com/avatars/{{user.id}}/{{user.avatar}}.webp?size=1024" alt="avatar">
 </body>
 
 {% endblock %}
